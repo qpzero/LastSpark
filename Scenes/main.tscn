@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://x34rjmilgm72"]
+
+[ext_resource type="PackedScene" uid="uid://crpag1bcdxiqy" path="res://Scenes/player.tscn" id="1_jjgbg"]
+[ext_resource type="PackedScene" uid="uid://g587hd43bceh" path="res://Scenes/object.tscn" id="2_bo1nx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jjgbg"]
+size = Vector2(2305, 24)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_jjgbg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bo1nx"]
+size = Vector2(32, 1288)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_8gbba"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8gbba"]
+size = Vector2(9328, 224)
+
+[node name="Main" type="Node2D" unique_id=1470875086]
+
+[node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
+position = Vector2(1120, 432)
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=806385919]
+process_callback = 0
+limit_bottom = 1791
+position_smoothing_enabled = true
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=84060558]
+metadata/_edit_lock_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1015250619]
+position = Vector2(1151.5, 1284)
+shape = SubResource("RectangleShape2D_jjgbg")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D" unique_id=417969043]
+position = Vector2(1152, 1284)
+scale = Vector2(2304, 23.999985)
+texture = SubResource("CanvasTexture_jjgbg")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=1324447223]
+position = Vector2(8, 72)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=148222239]
+position = Vector2(8, 572)
+shape = SubResource("RectangleShape2D_bo1nx")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D2" unique_id=1072465765]
+position = Vector2(8, 572.00006)
+scale = Vector2(32, 1288)
+texture = SubResource("CanvasTexture_8gbba")
+
+[node name="Object" parent="." unique_id=1131274694 instance=ExtResource("2_bo1nx")]
+position = Vector2(2288, 624.00006)
+scale = Vector2(0.25, 10.418)
+
+[node name="Object2" parent="." unique_id=993310235 instance=ExtResource("2_bo1nx")]
+position = Vector2(-320, 16)
+scale = Vector2(5, 0.25)
+
+[node name="DeathZone" type="Area2D" parent="." unique_id=1962226857]
+position = Vector2(0, 1416)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathZone" unique_id=1319506109]
+position = Vector2(256, 480)
+shape = SubResource("RectangleShape2D_8gbba")
+
+[connection signal="body_entered" from="DeathZone" to="Player" method="_on_death_zone_body_entered"]
