@@ -26,7 +26,7 @@ process_callback = 0
 limit_bottom = 1791
 position_smoothing_enabled = true
 
-[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=84060558]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=84060558 groups=["environment"]]
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1015250619]
@@ -38,7 +38,7 @@ position = Vector2(1152, 1284)
 scale = Vector2(2304, 23.999985)
 texture = SubResource("CanvasTexture_jjgbg")
 
-[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=1324447223]
+[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=1324447223 groups=["environment"]]
 position = Vector2(8, 72)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=148222239]
@@ -50,11 +50,11 @@ position = Vector2(8, 572.00006)
 scale = Vector2(32, 1288)
 texture = SubResource("CanvasTexture_8gbba")
 
-[node name="Object" parent="." unique_id=1131274694 instance=ExtResource("2_bo1nx")]
+[node name="Object" parent="." unique_id=1131274694 groups=["environment"] instance=ExtResource("2_bo1nx")]
 position = Vector2(2288, 624.00006)
 scale = Vector2(0.25, 10.418)
 
-[node name="Object2" parent="." unique_id=993310235 instance=ExtResource("2_bo1nx")]
+[node name="Object2" parent="." unique_id=993310235 groups=["environment"] instance=ExtResource("2_bo1nx")]
 position = Vector2(-320, 16)
 scale = Vector2(5, 0.25)
 
