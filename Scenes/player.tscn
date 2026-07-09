@@ -22,4 +22,10 @@ texture = SubResource("CanvasTexture_v0iea")
 wait_time = 0.1
 one_shot = true
 
+[node name="attackHitbox" type="Area2D" parent="." unique_id=981330289]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="attackHitbox" unique_id=1516787625]
+polygon = PackedVector2Array(0, 0, 24, -24, 83, -18, 148, -9, 165, -1, 148, 10, 80, 20, 24, 24)
+disabled = true
+
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]

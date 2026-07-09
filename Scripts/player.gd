@@ -8,6 +8,8 @@ var gravMod = 1
 var is_dashing = false
 var canDash = true
 var HasWallJump = true
+var canDoubleJump = false
+var HasDoubleJump = true
 var is_clinging : bool = false
 @onready var dash_timer = $DashTimer
 var facing : float = 1
@@ -15,12 +17,15 @@ var facing : float = 1
 func _physics_process(delta: float) -> void:
 	#variable jump height 
 	if velocity.y<0:
-		gravMod = 0.7
+		gravMod = 0.8
 	else:
-		gravMod = move_toward(gravMod, 1.2, 0.1)
+		gravMod = move_toward(gravMod, 1.5, 0.1)
 	if Input.is_action_just_released("Jump") and velocity.y < 0:
-		velocity.y = move_toward(velocity.y, 0, SPEED/1.2)
-		
+		velocity.y = move_toward(velocity.y, 0, SPEED)
+	
+	if velocity.y > 1700:
+		velocity.y = 1700 #Adds maximum velocity
+	
 	#Dash
 	if Input.is_action_just_pressed("Dash") and canDash and not is_dashing:
 		velocity = Vector2.ZERO
@@ -39,8 +44,8 @@ func _physics_process(delta: float) -> void:
 	if is_dashing == false:
 
 		# Handle jump.
-		if Input.is_action_pressed("Jump") and is_on_floor():
-			velocity.y = JUMP_VELOCITY
+		if is_on_floor():
+			jump()
 
 		# Get the input direction and handle the movement/deceleration.
 		var direction = Input.get_axis("Left", "Right")
@@ -77,6 +82,15 @@ func _physics_process(delta: float) -> void:
 					velocity.y = 0
 			else:
 				is_clinging = false
+				
+		# Double Jump
+		if HasDoubleJump:
+			if is_on_floor():
+				canDoubleJump = true
+			if canDoubleJump and (not is_on_floor()) and Input.is_action_just_pressed("Jump"):
+				jump()
+				canDoubleJump = false
+		
 		# Add the gravity.
 		if not is_on_floor():
 			velocity += get_gravity() * gravMod * delta
@@ -94,6 +108,12 @@ func dash(dirX, dirY) -> void:
 	velocity = Vector2(dirX, dirY).normalized()*SPEED*dashSpeed
 	is_dashing = false;
 
+func jump() -> void:
+	if Input.is_action_pressed("Jump"):
+			velocity.y = JUMP_VELOCITY
+
+func kusarigama() -> void:
+	pass
 func _on_dash_timer_timeout() -> void:
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	if velocity.y < 0:
