@@ -1,17 +1,24 @@
 class_name Player
 extends CharacterBody2D
 
+#Node refs
+@onready var dash_timer = $DashTimer
+@onready var attack_hitbox = $attackHitbox
+@onready var attack_timer = $attackHitbox/attackTimer
 
-const SPEED = 700.0
-const JUMP_VELOCITY = -900.0
-var gravMod = 1
+#ability/upgrade variables 
 var is_dashing = false
 var canDash = true
 var HasWallJump = true
 var canDoubleJump = false
 var HasDoubleJump = true
 var is_clinging : bool = false
-@onready var dash_timer = $DashTimer
+var weapon = "sword"
+
+#general
+const SPEED = 700.0
+const JUMP_VELOCITY = -900.0
+var gravMod = 1
 var facing : float = 1
 
 func _physics_process(delta: float) -> void:
@@ -40,6 +47,9 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor() or is_clinging:
 		canDash = true
 	
+	#attacks
+	handle_attack()
+	
 	#if the player is dashing dont add gravity or let them jump
 	if is_dashing == false:
 
@@ -50,7 +60,7 @@ func _physics_process(delta: float) -> void:
 		# Get the input direction and handle the movement/deceleration.
 		var direction = Input.get_axis("Left", "Right")
 		if direction:
-			velocity.x = move_toward(velocity.x, direction * SPEED, SPEED/2)
+			velocity.x = move_toward(velocity.x, direction * SPEED, SPEED/8)
 			if (direction < 0):
 				facing = -1 # left
 			else:
@@ -76,7 +86,7 @@ func _physics_process(delta: float) -> void:
 					gravMod = 0;
 					if Input.is_action_just_pressed("Jump"):
 						velocity.y = JUMP_VELOCITY
-						velocity.x = -1500 * facing
+						velocity.x = -700 * facing
 					
 				if Input.is_action_just_pressed(dir):
 					velocity.y = 0
@@ -112,8 +122,49 @@ func jump() -> void:
 	if Input.is_action_pressed("Jump"):
 			velocity.y = JUMP_VELOCITY
 
+func handle_attack() -> void:
+	#attack direction
+	attack_hitbox.scale.x = facing
+	if Input.is_action_pressed("Up"):
+		attack_hitbox.rotation_degrees = -90/facing
+	elif Input.is_action_pressed("Down") and not is_on_floor():
+		attack_hitbox.rotation_degrees = 90/facing
+	else:
+		attack_hitbox.rotation_degrees = 0
+	
+	if weapon == "sword":
+		attack_timer.wait_time = 0.15
+	
+	#temp
+	$attackHitbox/Sprite2D.visible = false
+	
+	$attackHitbox/CollisionPolygon2D.disabled = true
+	
+	if Input.is_action_just_pressed("Attack"):
+		$attackHitbox/CollisionPolygon2D.disabled = false
+		attack_timer.start()
+		$attackHitbox/Sprite2D.visible = true
+	
+	if attack_timer.time_left > 0:
+		$attackHitbox/Sprite2D.visible = true
+		$attackHitbox/CollisionPolygon2D.disabled = false
+	
+	
+func _on_attack_hitbox_body_entered(body: Node2D) -> void:
+	if not body is Player:
+		if attack_hitbox.rotation_degrees*facing == 90:
+			velocity.y = -1000
+		elif attack_hitbox.rotation_degrees*facing == -90:
+			pass
+		else:
+			velocity.x = move_toward(velocity.x, -600*facing, SPEED) 
+		
+		
+			
+
 func kusarigama() -> void:
 	pass
+	
 func _on_dash_timer_timeout() -> void:
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	if velocity.y < 0:

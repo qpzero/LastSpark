@@ -7,6 +7,8 @@ size = Vector2(48, 48)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_v0iea"]
 
+[sub_resource type="CanvasTexture" id="CanvasTexture_cvnsp"]
+
 [node name="Player" type="CharacterBody2D" unique_id=1904642730]
 script = ExtResource("1_v0iea")
 
@@ -28,4 +30,15 @@ one_shot = true
 polygon = PackedVector2Array(0, 0, 24, -24, 83, -18, 148, -9, 165, -1, 148, 10, 80, 20, 24, 24)
 disabled = true
 
+[node name="Sprite2D" type="Sprite2D" parent="attackHitbox" unique_id=790820059]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(93, 1.0000019)
+scale = Vector2(138, 38.000004)
+texture = SubResource("CanvasTexture_cvnsp")
+
+[node name="attackTimer" type="Timer" parent="attackHitbox" unique_id=1251688993]
+wait_time = 0.25
+one_shot = true
+
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="body_entered" from="attackHitbox" to="." method="_on_attack_hitbox_body_entered"]

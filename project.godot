@@ -24,6 +24,10 @@ window/size/viewport_height=1296
 
 project/assembly_name="Last Spark"
 
+[global_group]
+
+environment=""
+
 [input]
 
 Left={
