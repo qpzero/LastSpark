@@ -17,7 +17,6 @@ size = Vector2(32, 1288)
 size = Vector2(9328, 224)
 
 [node name="Main" type="Node2D" unique_id=1470875086]
-position = Vector2(400, -72)
 
 [node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
 position = Vector2(1120, 432)
