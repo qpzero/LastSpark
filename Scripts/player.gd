@@ -5,14 +5,17 @@ extends CharacterBody2D
 @onready var dash_timer = $DashTimer
 @onready var attack_hitbox = $attackHitbox
 @onready var attack_timer = $attackHitbox/attackTimer
+@onready var sprite = $AnimatedSprite2D
 
 #ability/upgrade variables 
 var is_dashing = false
 var canDash = true
+var stopDash = false
 var HasWallJump = true
 var canDoubleJump = false
 var HasDoubleJump = true
 var is_clinging : bool = false
+var canCling = true
 var weapon = "sword"
 
 #general
@@ -22,6 +25,9 @@ var gravMod = 1
 var facing : float = 1
 
 func _physics_process(delta: float) -> void:
+	handle_animation()
+	
+	
 	#variable jump height 
 	if velocity.y<0:
 		gravMod = 0.8
@@ -47,11 +53,22 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor() or is_clinging:
 		canDash = true
 	
+	if stopDash: #slows the player to a halt after dashing
+		if velocity != Vector2.ZERO:
+			velocity.x = move_toward(velocity.x, 0, SPEED/3)
+			if velocity.y < 0:
+				velocity.y = move_toward(velocity.y, 0, SPEED/3)
+			else:
+				velocity.y = move_toward(velocity.y, 0, SPEED/3)
+		else:
+			stopDash = false
+
+	
 	#attacks
 	handle_attack()
 	
 	#if the player is dashing dont add gravity or let them jump
-	if is_dashing == false:
+	if not is_dashing and not stopDash:
 
 		# Handle jump.
 		if is_on_floor():
@@ -70,7 +87,8 @@ func _physics_process(delta: float) -> void:
 		
 		# Wall Jump
 		if HasWallJump:
-			if is_on_wall_only():
+			
+			if is_on_wall():
 				var normal = get_wall_normal()
 				var dir
 				if normal.x == 1 :
@@ -78,9 +96,14 @@ func _physics_process(delta: float) -> void:
 				if normal.x == -1:
 					dir = "Right"
 					
-				if Input.is_action_pressed(dir):
+				if Input.is_action_pressed(dir) and canCling:
 					is_clinging = true
 					
+				if is_on_floor():
+					is_clinging = false
+					if Input.is_action_just_pressed("Jump"):
+						canCling = false
+				
 				if is_clinging:
 					velocity.y = 200
 					gravMod = 0;
@@ -90,8 +113,13 @@ func _physics_process(delta: float) -> void:
 					
 				if Input.is_action_just_pressed(dir):
 					velocity.y = 0
+				
+				
 			else:
 				is_clinging = false
+			
+			if is_on_floor() and not Input.is_action_pressed("Jump"):
+				canCling = true
 				
 		# Double Jump
 		if HasDoubleJump:
@@ -124,13 +152,14 @@ func jump() -> void:
 
 func handle_attack() -> void:
 	#attack direction
-	attack_hitbox.scale.x = facing
-	if Input.is_action_pressed("Up"):
-		attack_hitbox.rotation_degrees = -90/facing
-	elif Input.is_action_pressed("Down") and not is_on_floor():
-		attack_hitbox.rotation_degrees = 90/facing
-	else:
-		attack_hitbox.rotation_degrees = 0
+	if attack_timer.time_left<=0:
+		attack_hitbox.scale.x = facing
+		if Input.is_action_pressed("Up"):
+			attack_hitbox.rotation_degrees = -90/facing
+		elif Input.is_action_pressed("Down") and not is_on_floor():
+			attack_hitbox.rotation_degrees = 90/facing
+		else:
+			attack_hitbox.rotation_degrees = 0
 	
 	if weapon == "sword":
 		attack_timer.wait_time = 0.15
@@ -153,24 +182,31 @@ func handle_attack() -> void:
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if not body is Player:
 		if attack_hitbox.rotation_degrees*facing == 90:
-			velocity.y = -1000
+			if body.is_in_group("pogoable"):
+				velocity.y = -1000
 		elif attack_hitbox.rotation_degrees*facing == -90:
 			pass
 		else:
-			velocity.x = move_toward(velocity.x, -600*facing, SPEED) 
+			velocity.x = move_toward(velocity.x, -800*facing, SPEED*2) 
 		
 		
-			
+func handle_animation() -> void: 
+	if facing == -1:
+		sprite.flip_h = true
+	else:
+		sprite.flip_h = false
+	
+	if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
+		sprite.play("walk")
+	else:
+		sprite.play("idle")
+
 
 func kusarigama() -> void:
 	pass
 	
 func _on_dash_timer_timeout() -> void:
-	velocity.x = move_toward(velocity.x, 0, SPEED)
-	if velocity.y < 0:
-		velocity.y = move_toward(velocity.y, 0, SPEED*2)
-	else:
-		velocity.y = move_toward(velocity.y, 0, SPEED)
+	stopDash = true #go to the "if stopDash:" line in physics process
 	
 
 

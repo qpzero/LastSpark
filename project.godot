@@ -27,6 +27,7 @@ project/assembly_name="Last Spark"
 [global_group]
 
 environment=""
+pogoable=""
 
 [input]
 

@@ -3,6 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://crpag1bcdxiqy" path="res://Scenes/player.tscn" id="1_jjgbg"]
 [ext_resource type="PackedScene" uid="uid://g587hd43bceh" path="res://Scenes/object.tscn" id="2_bo1nx"]
 
+[sub_resource type="CanvasTexture" id="CanvasTexture_bo1nx"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jjgbg"]
 size = Vector2(2305, 24)
 
@@ -16,15 +18,22 @@ size = Vector2(32, 1288)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8gbba"]
 size = Vector2(9328, 224)
 
+[sub_resource type="Gradient" id="Gradient_bo1nx"]
+offsets = PackedFloat32Array(0, 0.33501685, 0.6010101, 0.73569024)
+colors = PackedColorArray(1, 1, 1, 1, 0.46716535, 0.46716535, 0.46716535, 1, 0.16933638, 0.16933638, 0.16933638, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8gbba"]
+gradient = SubResource("Gradient_bo1nx")
+fill = 1
+fill_from = Vector2(0.50733495, 0.49022004)
+
 [node name="Main" type="Node2D" unique_id=1470875086]
 
-[node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
-position = Vector2(1120, 432)
-
-[node name="Camera2D" type="Camera2D" parent="Player" unique_id=806385919]
-process_callback = 0
-limit_bottom = 1791
-position_smoothing_enabled = true
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1133279489]
+modulate = Color(0.1, 0.1, 0.1, 1)
+position = Vector2(1072.0002, 624)
+scale = Vector2(2976, 1871.9999)
+texture = SubResource("CanvasTexture_bo1nx")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=84060558 groups=["environment"]]
 metadata/_edit_lock_ = true
@@ -64,5 +73,25 @@ position = Vector2(0, 1416)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DeathZone" unique_id=1319506109]
 position = Vector2(256, 480)
 shape = SubResource("RectangleShape2D_8gbba")
+
+[node name="Object3" parent="." unique_id=861966210 groups=["pogoable"] instance=ExtResource("2_bo1nx")]
+modulate = Color(0.7397895, 1.9372628e-06, 9.62615e-07, 1)
+position = Vector2(512, 1256)
+scale = Vector2(7, 0.25)
+
+[node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
+position = Vector2(1120, 432)
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=806385919]
+zoom = Vector2(1.5, 1.5)
+process_callback = 0
+limit_bottom = 1791
+position_smoothing_enabled = true
+
+[node name="PointLight2D2" type="PointLight2D" parent="Player" unique_id=48557578]
+position = Vector2(0, -24)
+scale = Vector2(4.25, 4.25)
+energy = 0.5
+texture = SubResource("GradientTexture2D_8gbba")
 
 [connection signal="body_entered" from="DeathZone" to="Player" method="_on_death_zone_body_entered"]
