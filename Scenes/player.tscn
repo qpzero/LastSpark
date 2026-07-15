@@ -6,6 +6,10 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cvnsp"]
 size = Vector2(34, 60)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_pu2lt"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(0, 600, 300, 300)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_6t5aa"]
 atlas = ExtResource("2_cvnsp")
 region = Rect2(0, 0, 300, 300)
@@ -28,6 +32,14 @@ region = Rect2(600, 300, 300, 300)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fkybt"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pu2lt")
+}],
+"loop": true,
+"name": &"dash",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_6t5aa")
@@ -56,6 +68,75 @@ animations = [{
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_v0iea"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_ukyrk"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(0, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7dp3o"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(600, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h4iuc"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(3300, 900, 300, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3smsa"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(0, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8erm5"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(600, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1ek2"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(1200, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tx1dd"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(1800, 900, 600, 300)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gymyn"]
+atlas = ExtResource("2_cvnsp")
+region = Rect2(2400, 900, 600, 300)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pu2lt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ukyrk")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_7dp3o")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_h4iuc")
+}],
+"loop": true,
+"name": &"hit",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3smsa")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_8erm5")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_f1ek2")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_tx1dd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gymyn")
+}],
+"loop": false,
+"name": &"sword",
+"speed": 20.0
+}]
+
 [sub_resource type="CanvasTexture" id="CanvasTexture_cvnsp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
@@ -72,7 +153,7 @@ shape = SubResource("RectangleShape2D_cvnsp")
 position = Vector2(1, -25)
 scale = Vector2(0.325, 0.325)
 sprite_frames = SubResource("SpriteFrames_fkybt")
-animation = &"walk"
+animation = &"dash"
 autoplay = "idle"
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1472156650]
@@ -86,12 +167,18 @@ wait_time = 0.1
 one_shot = true
 
 [node name="attackHitbox" type="Area2D" parent="." unique_id=981330289]
-position = Vector2(0, -10)
+position = Vector2(0, -18)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="attackHitbox" unique_id=1516787625]
 position = Vector2(0, -6)
 polygon = PackedVector2Array(0, 8, 24, -32, 88, -24, 144, -8, 168, 8, 144, 24, 88, 40, 24, 48)
 disabled = true
+
+[node name="AttackAnimations" type="AnimatedSprite2D" parent="attackHitbox" unique_id=1512075256]
+position = Vector2(88.00001, 2)
+scale = Vector2(0.325, 0.325)
+sprite_frames = SubResource("SpriteFrames_pu2lt")
+animation = &"hit"
 
 [node name="Sprite2D" type="Sprite2D" parent="attackHitbox" unique_id=790820059]
 visible = false

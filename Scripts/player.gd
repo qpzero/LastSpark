@@ -8,6 +8,7 @@ extends CharacterBody2D
 @onready var sprite = $AnimatedSprite2D
 @onready var damage_cooldown = $damageHitbox/damageCooldown
 @onready var damage_hitbox = $damageHitbox/CollisionShape2D
+@onready var attack_animations =$attackHitbox/AttackAnimations
 
 
 #ability/upgrade variables 
@@ -27,8 +28,8 @@ const JUMP_VELOCITY = -900.0
 var gravMod = 1
 var facing : float = 1
 var lastRespawnPoint = Vector2(1149, 1241)
-@export var HPMax : int = 5
-@export var HP : int = 5
+@export var HPMax : int = 10
+@export var HP : int = HPMax
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
@@ -178,29 +179,33 @@ func handle_attack() -> void:
 		attack_timer.wait_time = 0.15
 	
 	#temp
-	$attackHitbox/Sprite2D.visible = false
+	attack_animations.visible = false
 	
 	$attackHitbox/CollisionPolygon2D.disabled = true
 	
 	if Input.is_action_just_pressed("Attack"):
 		$attackHitbox/CollisionPolygon2D.disabled = false
 		attack_timer.start()
-		$attackHitbox/Sprite2D.visible = true
+		attack_animations.play("sword")
+		attack_animations.visible = true
 	
 	if attack_timer.time_left > 0:
-		$attackHitbox/Sprite2D.visible = true
+		attack_animations.visible = true
 		$attackHitbox/CollisionPolygon2D.disabled = false
 	
 #attack hits something :O
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if not body is Player:
+		
 		if attack_hitbox.rotation_degrees*facing == 90:
 			if body.is_in_group("pogoable"):
 				velocity.y = -1000
 				canDash = true
+			attack_animations.play("hit")
 		elif attack_hitbox.rotation_degrees*facing == -90:
-			pass
+			attack_animations.play("hit")
 		else:
+			attack_animations.play("hit")
 			velocity.x = move_toward(velocity.x, -800*facing, SPEED*2) 
 		
 		
@@ -214,6 +219,9 @@ func handle_animation() -> void:
 		sprite.play("walk")
 	else:
 		sprite.play("idle")
+	
+	if is_dashing:
+		sprite.play("dash")
 
 func death() -> void:
 	if HP <= 0:
@@ -246,7 +254,7 @@ func _on_damage_hitbox_body_entered(body: Node2D) -> void:
 				velocity.x = move_toward(velocity.x, -900*facing, SPEED*2)
 			freezeFrame(0.1, 0.1) 
 			 
-			
+
 
 func freezeFrame(timescale: float, duration: float) -> void:
 	Engine.time_scale = timescale
