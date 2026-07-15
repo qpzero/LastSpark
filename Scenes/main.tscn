@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://crpag1bcdxiqy" path="res://Scenes/player.tscn" id="1_jjgbg"]
 [ext_resource type="PackedScene" uid="uid://g587hd43bceh" path="res://Scenes/object.tscn" id="2_bo1nx"]
+[ext_resource type="PackedScene" uid="uid://dy6gbw5gl6c2t" path="res://Scenes/ui.tscn" id="3_8gbba"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_bo1nx"]
 
@@ -74,13 +75,23 @@ position = Vector2(0, 1416)
 position = Vector2(256, 480)
 shape = SubResource("RectangleShape2D_8gbba")
 
-[node name="Object3" parent="." unique_id=861966210 groups=["pogoable"] instance=ExtResource("2_bo1nx")]
+[node name="bounce" parent="." unique_id=861966210 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
 modulate = Color(0.7397895, 1.9372628e-06, 9.62615e-07, 1)
-position = Vector2(512, 1256)
+position = Vector2(480, 1256)
 scale = Vector2(7, 0.25)
 
+[node name="death box" parent="." unique_id=2018279787 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
+modulate = Color(0.82, 0, 0, 1)
+position = Vector2(1872, 1216)
+
 [node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
-position = Vector2(1120, 432)
+position = Vector2(1149, 1241)
+
+[node name="PointLight2D2" type="PointLight2D" parent="Player" unique_id=48557578]
+position = Vector2(0, -24)
+scale = Vector2(4.25, 4.25)
+energy = 0.5
+texture = SubResource("GradientTexture2D_8gbba")
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=806385919]
 zoom = Vector2(1.5, 1.5)
@@ -88,10 +99,9 @@ process_callback = 0
 limit_bottom = 1791
 position_smoothing_enabled = true
 
-[node name="PointLight2D2" type="PointLight2D" parent="Player" unique_id=48557578]
-position = Vector2(0, -24)
-scale = Vector2(4.25, 4.25)
-energy = 0.5
-texture = SubResource("GradientTexture2D_8gbba")
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1474636557]
+
+[node name="UI" parent="CanvasLayer" unique_id=1630496679 instance=ExtResource("3_8gbba")]
+metadata/_edit_lock_ = true
 
 [connection signal="body_entered" from="DeathZone" to="Player" method="_on_death_zone_body_entered"]

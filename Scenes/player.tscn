@@ -58,6 +58,9 @@ animations = [{
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_cvnsp"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
+size = Vector2(38, 64)
+
 [node name="Player" type="CharacterBody2D" unique_id=1904642730]
 script = ExtResource("1_v0iea")
 
@@ -86,10 +89,12 @@ one_shot = true
 position = Vector2(0, -10)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="attackHitbox" unique_id=1516787625]
-polygon = PackedVector2Array(0, 0, 24, -24, 83, -18, 148, -9, 165, -1, 148, 10, 80, 20, 24, 24)
+position = Vector2(0, -6)
+polygon = PackedVector2Array(0, 8, 24, -32, 88, -24, 144, -8, 168, 8, 144, 24, 88, 40, 24, 48)
 disabled = true
 
 [node name="Sprite2D" type="Sprite2D" parent="attackHitbox" unique_id=790820059]
+visible = false
 modulate = Color(1, 0, 0, 1)
 position = Vector2(93, 1.0000019)
 scale = Vector2(138, 38.000004)
@@ -99,5 +104,16 @@ texture = SubResource("CanvasTexture_cvnsp")
 wait_time = 0.25
 one_shot = true
 
+[node name="damageHitbox" type="Area2D" parent="." unique_id=96676685]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="damageHitbox" unique_id=1302304440]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_6t5aa")
+
+[node name="damageCooldown" type="Timer" parent="damageHitbox" unique_id=744288441]
+wait_time = 0.5
+one_shot = true
+
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
 [connection signal="body_entered" from="attackHitbox" to="." method="_on_attack_hitbox_body_entered"]
+[connection signal="body_entered" from="damageHitbox" to="." method="_on_damage_hitbox_body_entered"]

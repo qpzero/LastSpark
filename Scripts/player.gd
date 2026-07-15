@@ -6,6 +6,9 @@ extends CharacterBody2D
 @onready var attack_hitbox = $attackHitbox
 @onready var attack_timer = $attackHitbox/attackTimer
 @onready var sprite = $AnimatedSprite2D
+@onready var damage_cooldown = $damageHitbox/damageCooldown
+@onready var damage_hitbox = $damageHitbox/CollisionShape2D
+
 
 #ability/upgrade variables 
 var is_dashing = false
@@ -23,9 +26,16 @@ const SPEED = 700.0
 const JUMP_VELOCITY = -900.0
 var gravMod = 1
 var facing : float = 1
+var lastRespawnPoint = Vector2(1149, 1241)
+@export var HPMax : int = 5
+@export var HP : int = 5
+
+func _ready() -> void:
+	Engine.time_scale = 1.0
 
 func _physics_process(delta: float) -> void:
 	handle_animation()
+	
 	
 	
 	#variable jump height 
@@ -132,7 +142,9 @@ func _physics_process(delta: float) -> void:
 		# Add the gravity.
 		if not is_on_floor():
 			velocity += get_gravity() * gravMod * delta
-
+	#death; die if dead
+	death()
+	
 	move_and_slide()
 
 func dash(dirX, dirY) -> void:
@@ -149,6 +161,7 @@ func dash(dirX, dirY) -> void:
 func jump() -> void:
 	if Input.is_action_pressed("Jump"):
 			velocity.y = JUMP_VELOCITY
+			
 
 func handle_attack() -> void:
 	#attack direction
@@ -178,12 +191,13 @@ func handle_attack() -> void:
 		$attackHitbox/Sprite2D.visible = true
 		$attackHitbox/CollisionPolygon2D.disabled = false
 	
-	
+#attack hits something :O
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if not body is Player:
 		if attack_hitbox.rotation_degrees*facing == 90:
 			if body.is_in_group("pogoable"):
 				velocity.y = -1000
+				canDash = true
 		elif attack_hitbox.rotation_degrees*facing == -90:
 			pass
 		else:
@@ -201,16 +215,40 @@ func handle_animation() -> void:
 	else:
 		sprite.play("idle")
 
+func death() -> void:
+	if HP <= 0:
+		HP = HPMax
+		velocity = Vector2.ZERO
+		position = lastRespawnPoint
 
 func kusarigama() -> void:
 	pass
 	
 func _on_dash_timer_timeout() -> void:
 	stopDash = true #go to the "if stopDash:" line in physics process
-	
-
 
 func _on_death_zone_body_entered(body: Node2D) -> void:
+	
 	var player := body as Player
 	if player:
 		position = Vector2(1120,432)
+
+
+func _on_damage_hitbox_body_entered(body: Node2D) -> void:
+	if not body is Player:
+		if body.is_in_group("damage"):
+			if damage_cooldown.time_left<=0:
+				HP-=1
+				damage_cooldown.start()
+			if body.position.y>=position.y+damage_hitbox.shape.size.y/2:
+				velocity.y = move_toward(velocity.y, -500, SPEED*2)
+			else:
+				velocity.x = move_toward(velocity.x, -900*facing, SPEED*2)
+			freezeFrame(0.1, 0.1) 
+			 
+			
+
+func freezeFrame(timescale: float, duration: float) -> void:
+	Engine.time_scale = timescale
+	await get_tree().create_timer(duration,true, false, true).timeout
+	Engine.time_scale= 1.0
