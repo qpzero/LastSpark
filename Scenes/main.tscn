@@ -3,101 +3,107 @@
 [ext_resource type="PackedScene" uid="uid://crpag1bcdxiqy" path="res://Scenes/player.tscn" id="1_jjgbg"]
 [ext_resource type="PackedScene" uid="uid://g587hd43bceh" path="res://Scenes/object.tscn" id="2_bo1nx"]
 [ext_resource type="PackedScene" uid="uid://dy6gbw5gl6c2t" path="res://Scenes/ui.tscn" id="3_8gbba"]
+[ext_resource type="Script" uid="uid://dsl05kx1j3omt" path="res://Scripts/camera_2d.gd" id="3_jjvhh"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_bo1nx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jjgbg"]
-size = Vector2(2305, 24)
+size = Vector2(2471, 17)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_jjgbg"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bo1nx"]
-size = Vector2(32, 1288)
-
-[sub_resource type="CanvasTexture" id="CanvasTexture_8gbba"]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8gbba"]
-size = Vector2(9328, 224)
-
-[sub_resource type="Gradient" id="Gradient_bo1nx"]
-offsets = PackedFloat32Array(0, 0.33501685, 0.6010101, 0.73569024)
-colors = PackedColorArray(1, 1, 1, 1, 0.46716535, 0.46716535, 0.46716535, 1, 0.16933638, 0.16933638, 0.16933638, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_8gbba"]
-gradient = SubResource("Gradient_bo1nx")
-fill = 1
-fill_from = Vector2(0.50733495, 0.49022004)
+size = Vector2(8589, 353)
 
 [node name="Main" type="Node2D" unique_id=1470875086]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1133279489]
 modulate = Color(0.1, 0.1, 0.1, 1)
-position = Vector2(1072.0002, 624)
-scale = Vector2(2976, 1871.9999)
+position = Vector2(2203.5, 391.49982)
+scale = Vector2(7501, 3834.9998)
 texture = SubResource("CanvasTexture_bo1nx")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=84060558 groups=["environment"]]
-metadata/_edit_lock_ = true
+[node name="environment" type="CanvasGroup" parent="." unique_id=1526678342]
+position = Vector2(1604, 1159)
+scale = Vector2(1, 1.785)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1015250619]
-position = Vector2(1151.5, 1284)
+[node name="StaticBody2D" type="StaticBody2D" parent="environment" unique_id=84060558 groups=["environment"]]
+position = Vector2(-1604, -649.29974)
+scale = Vector2(1, 0.5602241)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="environment/StaticBody2D" unique_id=1015250619]
+position = Vector2(1068.5, 1280.5)
 shape = SubResource("RectangleShape2D_jjgbg")
 
-[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D" unique_id=417969043]
-position = Vector2(1152, 1284)
-scale = Vector2(2304, 23.999985)
+[node name="Sprite2D" type="Sprite2D" parent="environment/StaticBody2D" unique_id=417969043]
+position = Vector2(1062.9999, 1284)
+scale = Vector2(2482, 23.999985)
 texture = SubResource("CanvasTexture_jjgbg")
 
-[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=1324447223 groups=["environment"]]
-position = Vector2(8, 72)
+[node name="Object4" parent="environment" unique_id=1131274694 instance=ExtResource("2_bo1nx")]
+position = Vector2(-1623.0001, -284.0336)
+scale = Vector2(0.25, 5.582)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=148222239]
-position = Vector2(8, 572)
-shape = SubResource("RectangleShape2D_bo1nx")
+[node name="Object" parent="environment" unique_id=1911529073 instance=ExtResource("2_bo1nx")]
+position = Vector2(1310.0002, -53.781555)
+rotation = -2.1471443
+scale = Vector2(0.15695842, 9.990835)
+skew = 0.3751179
 
-[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D2" unique_id=1072465765]
-position = Vector2(8, 572.00006)
-scale = Vector2(32, 1288)
-texture = SubResource("CanvasTexture_8gbba")
+[node name="Object3" parent="environment" unique_id=1906358777 instance=ExtResource("2_bo1nx")]
+position = Vector2(2674, -181.5126)
+scale = Vector2(11.585, 0.14565827)
 
-[node name="Object" parent="." unique_id=1131274694 groups=["environment"] instance=ExtResource("2_bo1nx")]
-position = Vector2(2288, 624.00006)
-scale = Vector2(0.25, 10.418)
+[node name="Object2" parent="environment" unique_id=993310235 instance=ExtResource("2_bo1nx")]
+position = Vector2(-1924, -640.3362)
+scale = Vector2(5, 0.14005603)
 
-[node name="Object2" parent="." unique_id=993310235 groups=["environment"] instance=ExtResource("2_bo1nx")]
-position = Vector2(-320, 16)
-scale = Vector2(5, 0.25)
+[node name="bounce" parent="environment" unique_id=861966210 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
+modulate = Color(0.7397895, 1.9372628e-06, 9.62615e-07, 1)
+position = Vector2(-894.0001, 54.341736)
+scale = Vector2(5, 0.14)
+
+[node name="mana thing" parent="environment" unique_id=11673250 groups=["mana", "pogoable"] instance=ExtResource("2_bo1nx")]
+modulate = Color(0.06333327, 0.76, 0, 1)
+
+[node name="death box" parent="environment" unique_id=2018279787 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
+modulate = Color(0.82, 0, 0, 1)
+position = Vector2(268, 31.9328)
+scale = Vector2(1, 0.5602241)
+
+[node name="Object5" parent="environment" unique_id=1967304805 instance=ExtResource("2_bo1nx")]
+position = Vector2(3370, -289.07565)
+scale = Vector2(0.25, 10)
+
+[node name="Object6" parent="environment" unique_id=96365088 instance=ExtResource("2_bo1nx")]
+position = Vector2(2224, -495.2381)
+scale = Vector2(5, 0.5)
+
+[node name="Object7" parent="environment" unique_id=1198469269 instance=ExtResource("2_bo1nx")]
+position = Vector2(1015, -734.4538)
+scale = Vector2(4.044899, 1.5751481)
+
+[node name="Object8" parent="environment" unique_id=1494016478 instance=ExtResource("2_bo1nx")]
+position = Vector2(219, -1177.5911)
+scale = Vector2(12.237, 0.125)
 
 [node name="DeathZone" type="Area2D" parent="." unique_id=1962226857]
 position = Vector2(0, 1416)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DeathZone" unique_id=1319506109]
-position = Vector2(256, 480)
+position = Vector2(-113.5, 544.5)
 shape = SubResource("RectangleShape2D_8gbba")
-
-[node name="bounce" parent="." unique_id=861966210 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
-modulate = Color(0.7397895, 1.9372628e-06, 9.62615e-07, 1)
-position = Vector2(480, 1256)
-scale = Vector2(7, 0.25)
-
-[node name="death box" parent="." unique_id=2018279787 groups=["damage", "pogoable"] instance=ExtResource("2_bo1nx")]
-modulate = Color(0.82, 0, 0, 1)
-position = Vector2(1872, 1216)
 
 [node name="Player" parent="." unique_id=1904642730 instance=ExtResource("1_jjgbg")]
 position = Vector2(1149, 1241)
-
-[node name="PointLight2D2" type="PointLight2D" parent="Player" unique_id=48557578]
-position = Vector2(0, -24)
-scale = Vector2(4.25, 4.25)
-energy = 0.5
-texture = SubResource("GradientTexture2D_8gbba")
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=806385919]
 zoom = Vector2(1.5, 1.5)
 process_callback = 0
 limit_bottom = 1791
+limit_smoothed = true
 position_smoothing_enabled = true
+script = ExtResource("3_jjvhh")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1474636557]
 

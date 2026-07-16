@@ -9,6 +9,7 @@ extends CharacterBody2D
 @onready var damage_cooldown = $damageHitbox/damageCooldown
 @onready var damage_hitbox = $damageHitbox/CollisionShape2D
 @onready var attack_animations =$attackHitbox/AttackAnimations
+@onready var glow = $glow
 
 
 #ability/upgrade variables 
@@ -30,6 +31,8 @@ var facing : float = 1
 var lastRespawnPoint = Vector2(1149, 1241)
 @export var HPMax : int = 10
 @export var HP : int = HPMax
+@export var MPMax = 100.0
+@export var MP = 0
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
@@ -37,7 +40,9 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	handle_animation()
 	
-	
+	#mana cap
+	if MP > MPMax:
+		MP = MPMax
 	
 	#variable jump height 
 	if velocity.y<0:
@@ -102,13 +107,14 @@ func _physics_process(delta: float) -> void:
 			if is_on_wall():
 				var normal = get_wall_normal()
 				var dir
+				
 				if normal.x == 1 :
 					dir = "Left"
 				if normal.x == -1:
 					dir = "Right"
-					
-				if Input.is_action_pressed(dir) and canCling:
-					is_clinging = true
+				if dir != null:
+					if Input.is_action_pressed(dir) and canCling:
+						is_clinging = true
 					
 				if is_on_floor():
 					is_clinging = false
@@ -117,13 +123,13 @@ func _physics_process(delta: float) -> void:
 				
 				if is_clinging:
 					velocity.y = 200
-					gravMod = 0;
+					gravMod = 0
 					if Input.is_action_just_pressed("Jump"):
 						velocity.y = JUMP_VELOCITY
 						velocity.x = -700 * facing
-					
-				if Input.is_action_just_pressed(dir):
-					velocity.y = 0
+				if dir != null:
+					if Input.is_action_just_pressed(dir):
+						velocity.y = 0
 				
 				
 			else:
@@ -134,9 +140,9 @@ func _physics_process(delta: float) -> void:
 				
 		# Double Jump
 		if HasDoubleJump:
-			if is_on_floor():
+			if is_on_floor() or is_clinging:
 				canDoubleJump = true
-			if canDoubleJump and (not is_on_floor()) and Input.is_action_just_pressed("Jump"):
+			if canDoubleJump and (not (is_on_floor() or is_clinging)) and Input.is_action_just_pressed("Jump"):
 				jump()
 				canDoubleJump = false
 		
@@ -196,11 +202,13 @@ func handle_attack() -> void:
 #attack hits something :O
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if not body is Player:
-		
+		if body.is_in_group("mana"):
+			MP+= 10
 		if attack_hitbox.rotation_degrees*facing == 90:
 			if body.is_in_group("pogoable"):
 				velocity.y = -1000
 				canDash = true
+				canDoubleJump = true
 			attack_animations.play("hit")
 		elif attack_hitbox.rotation_degrees*facing == -90:
 			attack_animations.play("hit")
@@ -222,7 +230,12 @@ func handle_animation() -> void:
 	
 	if is_dashing:
 		sprite.play("dash")
-
+		
+	#glow scale with mana
+	#glow scale = minimum + (MP/MPMax)*(maximum-minimum)
+	glow.scale.x = 2.0 +(MP/MPMax)*(9.0-2.0)
+	glow.scale.y = 2.0 +(MP/MPMax)*(9.0-2.0)
+	
 func death() -> void:
 	if HP <= 0:
 		HP = HPMax

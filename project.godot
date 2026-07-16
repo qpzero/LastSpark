@@ -29,6 +29,7 @@ project/assembly_name="Last Spark"
 environment=""
 pogoable=""
 damage=""
+mana=""
 
 [input]
 
