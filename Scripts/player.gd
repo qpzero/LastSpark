@@ -6,6 +6,11 @@ extends CharacterBody2D
 @onready var attack_hitbox = $attackHitbox
 @onready var attack_timer = $attackHitbox/attackTimer
 @onready var sprite = $AnimatedSprite2D
+@onready var damage_cooldown = $damageHitbox/damageCooldown
+@onready var damage_hitbox = $damageHitbox/CollisionShape2D
+@onready var attack_animations =$attackHitbox/AttackAnimations
+@onready var glow = $glow
+
 
 #ability/upgrade variables 
 var is_dashing = false
@@ -23,10 +28,23 @@ const SPEED = 700.0
 const JUMP_VELOCITY = -900.0
 var gravMod = 1
 var facing : float = 1
+var lastRespawnPoint = Vector2(1149, 1241)
+@export var HPMax : int = 10
+@export var HP : int = HPMax
+@export var MPMax = 100.0
+@export var MP = 0
+
+signal freezeFrameOver
+
+func _ready() -> void:
+	Engine.time_scale = 1.0
 
 func _physics_process(delta: float) -> void:
 	handle_animation()
 	
+	#mana cap
+	if MP > MPMax:
+		MP = MPMax
 	
 	#variable jump height 
 	if velocity.y<0:
@@ -91,13 +109,14 @@ func _physics_process(delta: float) -> void:
 			if is_on_wall():
 				var normal = get_wall_normal()
 				var dir
+				
 				if normal.x == 1 :
 					dir = "Left"
 				if normal.x == -1:
 					dir = "Right"
-					
-				if Input.is_action_pressed(dir) and canCling:
-					is_clinging = true
+				if dir != null:
+					if Input.is_action_pressed(dir) and canCling:
+						is_clinging = true
 					
 				if is_on_floor():
 					is_clinging = false
@@ -106,13 +125,13 @@ func _physics_process(delta: float) -> void:
 				
 				if is_clinging:
 					velocity.y = 200
-					gravMod = 0;
+					gravMod = 0
 					if Input.is_action_just_pressed("Jump"):
 						velocity.y = JUMP_VELOCITY
 						velocity.x = -700 * facing
-					
-				if Input.is_action_just_pressed(dir):
-					velocity.y = 0
+				if dir != null:
+					if Input.is_action_just_pressed(dir):
+						velocity.y = 0
 				
 				
 			else:
@@ -123,16 +142,18 @@ func _physics_process(delta: float) -> void:
 				
 		# Double Jump
 		if HasDoubleJump:
-			if is_on_floor():
+			if is_on_floor() or is_clinging:
 				canDoubleJump = true
-			if canDoubleJump and (not is_on_floor()) and Input.is_action_just_pressed("Jump"):
+			if canDoubleJump and (not (is_on_floor() or is_clinging)) and Input.is_action_just_pressed("Jump"):
 				jump()
 				canDoubleJump = false
 		
 		# Add the gravity.
 		if not is_on_floor():
 			velocity += get_gravity() * gravMod * delta
-
+	#death; die if dead
+	death()
+	
 	move_and_slide()
 
 func dash(dirX, dirY) -> void:
@@ -149,6 +170,7 @@ func dash(dirX, dirY) -> void:
 func jump() -> void:
 	if Input.is_action_pressed("Jump"):
 			velocity.y = JUMP_VELOCITY
+			
 
 func handle_attack() -> void:
 	#attack direction
@@ -165,28 +187,35 @@ func handle_attack() -> void:
 		attack_timer.wait_time = 0.15
 	
 	#temp
-	$attackHitbox/Sprite2D.visible = false
+	attack_animations.visible = false
 	
 	$attackHitbox/CollisionPolygon2D.disabled = true
 	
 	if Input.is_action_just_pressed("Attack"):
 		$attackHitbox/CollisionPolygon2D.disabled = false
 		attack_timer.start()
-		$attackHitbox/Sprite2D.visible = true
+		attack_animations.play("sword")
+		attack_animations.visible = true
 	
 	if attack_timer.time_left > 0:
-		$attackHitbox/Sprite2D.visible = true
+		attack_animations.visible = true
 		$attackHitbox/CollisionPolygon2D.disabled = false
 	
-	
+#attack hits something :O
 func _on_attack_hitbox_body_entered(body: Node2D) -> void:
 	if not body is Player:
+		if body.is_in_group("mana"):
+			MP+= 10
 		if attack_hitbox.rotation_degrees*facing == 90:
 			if body.is_in_group("pogoable"):
 				velocity.y = -1000
+				canDash = true
+				canDoubleJump = true
+			attack_animations.play("hit")
 		elif attack_hitbox.rotation_degrees*facing == -90:
-			pass
+			attack_animations.play("hit")
 		else:
+			attack_animations.play("hit")
 			velocity.x = move_toward(velocity.x, -800*facing, SPEED*2) 
 		
 		
@@ -195,22 +224,87 @@ func handle_animation() -> void:
 		sprite.flip_h = true
 	else:
 		sprite.flip_h = false
+		
 	
-	if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
-		sprite.play("walk")
+	if is_dashing:
+		sprite.play("dash")
 	else:
-		sprite.play("idle")
-
+		if is_clinging:
+			if sprite.animation != "clinging":
+				sprite.play("clingStart")
+				await sprite.animation_finished
+				sprite.play("clinging")
+			else:
+				sprite.play("clinging")
+		else:
+			if sprite.animation == "dash":
+				await sprite.animation_finished
+			if is_on_floor():
+				if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
+					sprite.play("walk")
+				else:
+					sprite.play("idle")
+			else:
+				if velocity.y < 0:
+					if sprite.animation != "ascending":
+						sprite.play("jump")
+						await sprite.animation_finished
+						sprite.play("ascending")
+					else:
+						sprite.play("ascending")
+				else:
+					if sprite.animation != "falling":
+						sprite.play("ascend to fall")
+						await sprite.animation_finished
+						sprite.play("falling")
+					else:
+						sprite.play("falling")
+				
+	#glow scale with mana
+	#glow scale = minimum + (MP/MPMax)*(maximum-minimum)
+	var rand = randf_range(-0.25, 0.25)
+	glow.scale.x = 2.0 +(MP/MPMax)*(9.0-2.0) + rand
+	glow.scale.y = 2.0 +(MP/MPMax)*(9.0-2.0) + rand
+	
+func death() -> void:
+	if HP <= 0:
+		Engine.time_scale = 0.1
+		await get_tree().create_timer(1.0, true, false, true).timeout
+		Engine.time_scale = 1.0
+		HP = HPMax
+		MP = 0
+		velocity = Vector2.ZERO
+		position = lastRespawnPoint
 
 func kusarigama() -> void:
 	pass
 	
 func _on_dash_timer_timeout() -> void:
 	stopDash = true #go to the "if stopDash:" line in physics process
-	
-
 
 func _on_death_zone_body_entered(body: Node2D) -> void:
+	
 	var player := body as Player
 	if player:
 		position = Vector2(1120,432)
+
+
+func _on_damage_hitbox_body_entered(body: Node2D) -> void:
+	if not body is Player:
+		if body.is_in_group("damage"):
+			if damage_cooldown.time_left<=0:
+				HP-=1
+				damage_cooldown.start()
+			if body.global_position.y>=position.y+damage_hitbox.shape.size.y/2:
+				velocity.y = move_toward(velocity.y, -500, SPEED*2)
+			else:
+				velocity.x = move_toward(velocity.x, -900*facing, SPEED*2)
+			freezeFrame(0.1, 0.1) 
+			 
+
+
+func freezeFrame(timescale: float, duration: float) -> void:
+	Engine.time_scale = timescale
+	await get_tree().create_timer(duration,true, false, true).timeout
+	Engine.time_scale= 1.0
+	freezeFrameOver.emit()
