@@ -1,6 +1,6 @@
 ﻿# last-spark
-controls: \n
-movement -> WASD \n
-jump -> space \n
-dash -> P \n
-attack -> O \n
+controls: 
+movement -> WASD 
+jump -> space 
+dash -> P 
+attack -> O 
