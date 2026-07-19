@@ -64,6 +64,14 @@ offset_bottom = 85.0
 texture = SubResource("CanvasTexture_qdvrb")
 region_rect = Rect2(0, 0, 1, 1)
 
+[node name="ColorRect" type="ColorRect" parent="Mana" unique_id=1291874252]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 15.0
+offset_right = 360.0
+offset_bottom = 70.0
+color = Color(0.33341277, 0.33341277, 0.33341277, 1)
+
 [node name="manaBar" type="ColorRect" parent="Mana" unique_id=699845538]
 layout_mode = 0
 offset_left = 15.0

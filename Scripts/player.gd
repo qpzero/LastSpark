@@ -34,6 +34,8 @@ var lastRespawnPoint = Vector2(1149, 1241)
 @export var MPMax = 100.0
 @export var MP = 0
 
+signal freezeFrameOver
+
 func _ready() -> void:
 	Engine.time_scale = 1.0
 
@@ -222,23 +224,55 @@ func handle_animation() -> void:
 		sprite.flip_h = true
 	else:
 		sprite.flip_h = false
-	
-	if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
-		sprite.play("walk")
-	else:
-		sprite.play("idle")
+		
 	
 	if is_dashing:
 		sprite.play("dash")
-		
+	else:
+		if is_clinging:
+			if sprite.animation != "clinging":
+				sprite.play("clingStart")
+				await sprite.animation_finished
+				sprite.play("clinging")
+			else:
+				sprite.play("clinging")
+		else:
+			if sprite.animation == "dash":
+				await sprite.animation_finished
+			if is_on_floor():
+				if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
+					sprite.play("walk")
+				else:
+					sprite.play("idle")
+			else:
+				if velocity.y < 0:
+					if sprite.animation != "ascending":
+						sprite.play("jump")
+						await sprite.animation_finished
+						sprite.play("ascending")
+					else:
+						sprite.play("ascending")
+				else:
+					if sprite.animation != "falling":
+						sprite.play("ascend to fall")
+						await sprite.animation_finished
+						sprite.play("falling")
+					else:
+						sprite.play("falling")
+				
 	#glow scale with mana
 	#glow scale = minimum + (MP/MPMax)*(maximum-minimum)
-	glow.scale.x = 2.0 +(MP/MPMax)*(9.0-2.0)
-	glow.scale.y = 2.0 +(MP/MPMax)*(9.0-2.0)
+	var rand = randf_range(-0.25, 0.25)
+	glow.scale.x = 2.0 +(MP/MPMax)*(9.0-2.0) + rand
+	glow.scale.y = 2.0 +(MP/MPMax)*(9.0-2.0) + rand
 	
 func death() -> void:
 	if HP <= 0:
+		Engine.time_scale = 0.1
+		await get_tree().create_timer(1.0, true, false, true).timeout
+		Engine.time_scale = 1.0
 		HP = HPMax
+		MP = 0
 		velocity = Vector2.ZERO
 		position = lastRespawnPoint
 
@@ -261,7 +295,7 @@ func _on_damage_hitbox_body_entered(body: Node2D) -> void:
 			if damage_cooldown.time_left<=0:
 				HP-=1
 				damage_cooldown.start()
-			if body.position.y>=position.y+damage_hitbox.shape.size.y/2:
+			if body.global_position.y>=position.y+damage_hitbox.shape.size.y/2:
 				velocity.y = move_toward(velocity.y, -500, SPEED*2)
 			else:
 				velocity.x = move_toward(velocity.x, -900*facing, SPEED*2)
@@ -273,3 +307,4 @@ func freezeFrame(timescale: float, duration: float) -> void:
 	Engine.time_scale = timescale
 	await get_tree().create_timer(duration,true, false, true).timeout
 	Engine.time_scale= 1.0
+	freezeFrameOver.emit()
